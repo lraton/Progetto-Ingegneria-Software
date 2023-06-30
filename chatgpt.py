@@ -14,16 +14,3 @@ def get_response(messages:list):
         temperature = 1.0 # 0.0 - 2.0
     )
     return response.choices[0].message
-
-
-def bot(message):
-    messages = [
-        {"role": "system", "content": "Sei un assistente che funziona su un bot telegram e deve rispondere ad ogni frase ricevuta. Sei stato creato per il progetto di Ingegneria del software 2022/2023 da Filippo Notari"}
-    ]
-    user_input=message
-    messages.append({"role": "user", "content": user_input})
-    new_message = get_response(messages=messages)
-    response=new_message['content']
-    messages.append(new_message)
-    print(messages)
-    return response

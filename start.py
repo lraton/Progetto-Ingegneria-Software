@@ -1,3 +1,4 @@
+import json
 import logging
 from telegram import ReplyKeyboardRemove, Update
 from telegram.ext import (
@@ -16,7 +17,16 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+with open("secrets.json") as f:
+    secrets = json.load(f)
+    api_key = secrets["api_telegram_key"]
+
+messages = []
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    messages.append(
+        {"role": "system", "content": "Sei un assistente che funziona su un bot telegram e deve rispondere ad ogni frase ricevuta. Ti comporterai come se fossi un essere umano. Sei stato creato per il progetto di Ingegneria del software 2022/2023 da Filippo Notari. Il tuo nome è IngBot"}
+    )
     await update.message.reply_text(
         "Ciao sono un bot creato per aiutarti attraverso la potenza di chatgpt"
         "Invia /stop per smettere di conversare con me.\n\n"
@@ -31,8 +41,14 @@ async def message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Stores the selected gender and asks for a photo."""
     user = update.message.from_user
     logger.info("Messaggio di %s: %s", user.first_name, update.message.text)
+    
+    messages.append({"role": "user", "content": update.message.text})
+    new_message = chatgpt.get_response(messages=messages)
+    messages.append(new_message)
+    print(messages)
+
     await update.message.reply_text(
-        chatgpt.bot(update.message.text),
+        new_message['content'],
         reply_markup=ReplyKeyboardRemove(),
     )
 
@@ -42,6 +58,9 @@ async def stop(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Cancels and ends the conversation."""
     user = update.message.from_user
     logger.info("User %s ha fermato la conversazione.", user.first_name)
+
+    messages.clear()
+
     await update.message.reply_text(
         "Arrivederci! Spero di essere stato utile", reply_markup=ReplyKeyboardRemove()
     )
@@ -49,7 +68,6 @@ async def stop(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return ConversationHandler.END
 
 async def help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Cancels and ends the conversation."""
     user = update.message.from_user
     logger.info("User %s ha chiesto aiuto.", user.first_name)
     await update.message.reply_text(
@@ -58,11 +76,8 @@ async def help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 
 def main() -> None:
-    """Run the bot."""
-    # Create the Application and pass it your bot's token.
-    application = Application.builder().token("6173029265:AAE70Cm56_mIf0PUGlQkN0mQr-LAQ60Tnjc").build()
+    application = Application.builder().token(api_key).build()
 
-    # Add conversation handler with the states GENDER, PHOTO, LOCATION and BIO
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler("start", start)],
         states={
@@ -73,10 +88,7 @@ def main() -> None:
     )
 
     application.add_handler(conv_handler)
-
-    # Run the bot until the user presses Ctrl-C
     application.run_polling()
-
 
 if __name__ == "__main__":
     main()
