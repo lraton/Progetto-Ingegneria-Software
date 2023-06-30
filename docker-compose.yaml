@@ -1,0 +1,15 @@
+
+version: "3.3"
+
+services:
+
+  pythonbot:
+    image: "python:latest"
+    container_name: "pythonbot"
+    restart: unless-stopped
+    working_dir: /home/python/app
+    volumes:
+      - ./:/home/python/app
+    ports:
+     - "8081:8081"
+    command: sh -c "pip install -r requirements.txt && python start.py"
