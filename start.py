@@ -23,6 +23,7 @@ with open("secrets.json") as f:
 
 messages = []
 
+#Handler per avviare il bot 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     messages.append(
         {"role": "system", "content": "Sei un assistente che funziona su un bot telegram e deve rispondere ad ogni frase ricevuta. Ti comporterai come se fossi un essere umano. Sei stato creato per il progetto di Ingegneria del software 2022/2023 da Filippo Notari. Il tuo nome è IngBot"}
@@ -36,9 +37,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
     return message
 
-
+#Handler per i messaggi ricevuti
 async def message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Stores the selected gender and asks for a photo."""
     user = update.message.from_user
     logger.info("Messaggio di %s: %s", user.first_name, update.message.text)
     
@@ -54,6 +54,7 @@ async def message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
     return message
 
+#Handler per fermare la chat
 async def stop(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Cancels and ends the conversation."""
     user = update.message.from_user
@@ -67,6 +68,7 @@ async def stop(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
     return ConversationHandler.END
 
+#Handler per il comando aiuto
 async def help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user = update.message.from_user
     logger.info("User %s ha chiesto aiuto.", user.first_name)
@@ -74,7 +76,7 @@ async def help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         "Comando help", reply_markup=ReplyKeyboardRemove()
     )
 
-
+#Main
 def main() -> None:
     application = Application.builder().token(api_key).build()
 
