@@ -73,7 +73,7 @@ async def help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user = update.message.from_user
     logger.info("User %s ha chiesto aiuto.", user.first_name)
     await update.message.reply_text(
-        "Comando help", reply_markup=ReplyKeyboardRemove()
+        "Per usare il bot usa il comando /start, una volta avviato puoi fare qualsiasi domanda, quando hai finito usa /stop", reply_markup=ReplyKeyboardRemove()
     )
 
 #Main
@@ -86,10 +86,11 @@ def main() -> None:
             message: [
                 MessageHandler(filters.TEXT & ~filters.COMMAND, message)],
         },
-        fallbacks=[CommandHandler("stop", stop),CommandHandler("help", help)],
+        fallbacks=[CommandHandler("stop", stop)],
     )
 
     application.add_handler(conv_handler)
+    application.add_handler(CommandHandler("help", help))
     application.run_polling()
 
 if __name__ == "__main__":
